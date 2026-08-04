@@ -1,12 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using Oracle.ManagedDataAccess.Client;
+using StajApi.CQRS;
+using StajApi.Features.Auth;
 using StajApi.Models;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace StajApi.Controllers;
 
@@ -14,213 +10,67 @@ namespace StajApi.Controllers;
 [Route("api/auth")]
 public class AuthController : ControllerBase
 {
-    private readonly IConfiguration _configuration;
+    private readonly ICommandHandler<LoginCommand, AuthResult> _loginHandler;
+    private readonly ICommandHandler<RefreshTokenCommand, AuthResult> _refreshHandler;
 
-    public AuthController(IConfiguration configuration)
+    public AuthController(
+        ICommandHandler<LoginCommand, AuthResult> loginHandler,
+        ICommandHandler<RefreshTokenCommand, AuthResult> refreshHandler)
     {
-        _configuration = configuration;
+        _loginHandler = loginHandler;
+        _refreshHandler = refreshHandler;
     }
 
     [AllowAnonymous]
     [HttpPost("login")]
-    public IActionResult Login(LoginRequest request)
+    public async Task<IActionResult> Login(LoginRequest request)
     {
-        // Geçici test kullanıcısı
-        if (request.Username != "admin" || request.Password != "123456")
+        var result = await _loginHandler.Handle(new LoginCommand
+        {
+            Username = request.Username,
+            Password = request.Password
+        });
+
+        if (!result.Success)
         {
             return Unauthorized(new
             {
                 success = false,
-                message = "Kullanıcı adı veya şifre hatalı."
+                message = result.Message
             });
         }
-
-        var accessToken = CreateToken(request.Username);
-        var refreshToken = GenerateRefreshToken();
-
-        SaveRefreshToken(request.Username, refreshToken);
 
         return Ok(new
         {
             success = true,
-            accessToken,
-            refreshToken,
+            accessToken = result.AccessToken,
+            refreshToken = result.RefreshToken,
             expiresInMinutes = 60
         });
     }
 
-    private string CreateToken(string username)
-    {
-        var key = _configuration["Jwt:Key"];
-        var issuer = _configuration["Jwt:Issuer"];
-        var audience = _configuration["Jwt:Audience"];
-
-        var expireMinutes =
-            int.Parse(_configuration["Jwt:ExpireMinutes"] ?? "60");
-
-        if (string.IsNullOrWhiteSpace(key))
-        {
-            throw new InvalidOperationException(
-                "JWT anahtarı appsettings.json içinde bulunamadı.");
-        }
-
-        var claims = new List<Claim>
-        {
-            new(JwtRegisteredClaimNames.Sub, username),
-            new(ClaimTypes.Name, username),
-            new(ClaimTypes.Role, "Admin"),
-            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-        };
-
-        var securityKey =
-            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
-
-        var credentials =
-            new SigningCredentials(
-                securityKey,
-                SecurityAlgorithms.HmacSha256);
-
-        var token = new JwtSecurityToken(
-            issuer: issuer,
-            audience: audience,
-            claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(expireMinutes),
-            signingCredentials: credentials
-        );
-
-        return new JwtSecurityTokenHandler().WriteToken(token);
-    }
-
-    private string GenerateRefreshToken()
-    {
-        return Convert.ToBase64String(
-            RandomNumberGenerator.GetBytes(64));
-            
-    }
-
-    private void SaveRefreshToken(
-        string username,
-        string refreshToken)
-    {
-        
-        var connectionString =
-            _configuration.GetConnectionString("OracleDb");
-
-        if (string.IsNullOrWhiteSpace(connectionString))
-        {
-            throw new InvalidOperationException(
-                "OracleDb bağlantı bilgisi bulunamadı.");
-        }
-
-        using var connection =
-            new OracleConnection(connectionString);
-
-        connection.Open();
-
-        using var command = connection.CreateCommand();
-
-        command.BindByName = true;
-
-        command.CommandText = """
-            INSERT INTO REFRESH_TOKENS
-                (USERNAME, TOKEN, EXPIRES_AT, IS_REVOKED)
-            VALUES
-                (:username, :token, :expiresAt, 0)
-            """;
-
-        command.Parameters.Add(
-            "username",
-            OracleDbType.Varchar2).Value = username;
-
-        command.Parameters.Add(
-            "token",
-            OracleDbType.Varchar2).Value = refreshToken;
-
-        command.Parameters.Add(
-            "expiresAt",
-            OracleDbType.TimeStamp).Value =
-            DateTime.UtcNow.AddDays(7);
-
-            command.ExecuteNonQuery();
-        }
-            [AllowAnonymous]
+    [AllowAnonymous]
     [HttpPost("refresh")]
-    public IActionResult Refresh(RefreshTokenRequest request)
+    public async Task<IActionResult> Refresh(RefreshTokenRequest request)
     {
-    var connectionString = _configuration.GetConnectionString("OracleDb");
+        var result = await _refreshHandler.Handle(new RefreshTokenCommand
+        {
+            RefreshToken = request.RefreshToken
+        });
 
-    using var connection = new OracleConnection(connectionString);
-    connection.Open();
-
-    using var command = connection.CreateCommand();
-
-    command.BindByName = true;
-
-    command.CommandText = @"
-        SELECT USERNAME
-        FROM REFRESH_TOKENS
-        WHERE TOKEN = :token
-          AND IS_REVOKED = 0
-          AND EXPIRES_AT > SYSTIMESTAMP";
-
-    command.Parameters.Add("token", OracleDbType.Varchar2).Value =
-        request.RefreshToken;
-
-    var username = command.ExecuteScalar() as string;
-
-        if (username == null)
+        if (!result.Success)
         {
             return Unauthorized(new
             {
-                message = "Geçersiz veya süresi dolmuş Refresh Token."
+                message = result.Message
             });
         }
 
-        var newAccessToken = CreateToken(username);
-        var newRefreshToken = GenerateRefreshToken();
-
-        RevokeRefreshToken(request.RefreshToken);
-
-        SaveRefreshToken(username, newRefreshToken);
-
-             return Ok(new
+        return Ok(new
         {
             success = true,
-            accessToken = newAccessToken,
-            refreshToken = newRefreshToken
+            accessToken = result.AccessToken,
+            refreshToken = result.RefreshToken
         });
-    }
-
-    private void RevokeRefreshToken(string refreshToken)
-    {
-        var connectionString =
-            _configuration.GetConnectionString("OracleDb");
-
-        if (string.IsNullOrWhiteSpace(connectionString))
-        {
-            throw new InvalidOperationException(
-                "OracleDb bağlantı bilgisi bulunamadı.");
-        }
-
-        using var connection =
-            new OracleConnection(connectionString);
-
-        connection.Open();
-
-        using var command = connection.CreateCommand();
-
-        command.BindByName = true;
-
-        command.CommandText = """
-            UPDATE REFRESH_TOKENS
-            SET IS_REVOKED = 1
-            WHERE TOKEN = :token
-            """;
-
-        command.Parameters.Add(
-            "token",
-            OracleDbType.Varchar2).Value = refreshToken;
-
-        command.ExecuteNonQuery();
     }
 }

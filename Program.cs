@@ -2,10 +2,31 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi;
+using StajApi.CQRS;
+using StajApi.Data;
+using StajApi.Features.Auth;
+using StajApi.Features.Calisanlar;
+using StajApi.Models;
+using StajApi.Repositories;
+using StajApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
+
+builder.Services.AddSingleton<IDbConnectionFactory, OracleConnectionFactory>();
+builder.Services.AddSingleton<ITokenService, TokenService>();
+builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+
+builder.Services.AddScoped<
+    IQueryHandler<GetCalisanlarQuery, List<Calisan>>,
+    GetCalisanlarQueryHandler>();
+builder.Services.AddScoped<
+    ICommandHandler<LoginCommand, AuthResult>,
+    LoginCommandHandler>();
+builder.Services.AddScoped<
+    ICommandHandler<RefreshTokenCommand, AuthResult>,
+    RefreshTokenCommandHandler>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {

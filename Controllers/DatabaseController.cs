@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using Oracle.ManagedDataAccess.Client;
+using StajApi.Data;
 
 namespace StajApi.Controllers;
 
@@ -7,11 +7,11 @@ namespace StajApi.Controllers;
 [Route("api/database")]
 public class DatabaseController : ControllerBase
 {
-    private readonly IConfiguration _configuration;
+    private readonly IDbConnectionFactory _connectionFactory;
 
-    public DatabaseController(IConfiguration configuration)
+    public DatabaseController(IDbConnectionFactory connectionFactory)
     {
-        _configuration = configuration;
+        _connectionFactory = connectionFactory;
     }
 
     [HttpGet("test")]
@@ -19,9 +19,7 @@ public class DatabaseController : ControllerBase
     {
         try
         {
-            var connectionString = _configuration.GetConnectionString("OracleDb");
-
-            await using var connection = new OracleConnection(connectionString);
+            await using var connection = _connectionFactory.CreateConnection();
             await connection.OpenAsync();
 
             return Ok(new
