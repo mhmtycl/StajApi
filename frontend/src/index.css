@@ -1,0 +1,152 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background-color: #f2f3f5;
+  color: #222222;
+  font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+  font-size: 14px;
+}
+
+.login-sayfa {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.kart {
+  width: 100%;
+  max-width: 340px;
+  padding: 28px;
+  background-color: #ffffff;
+  border: 1px solid #d5d8dc;
+  border-radius: 4px;
+}
+
+.kart h1 {
+  margin: 0 0 4px 0;
+  font-size: 18px;
+}
+
+.alt-baslik {
+  margin: 0 0 20px 0;
+  color: #6b7075;
+  font-size: 13px;
+}
+
+label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+input {
+  width: 100%;
+  padding: 8px 10px;
+  margin-bottom: 16px;
+  font-family: inherit;
+  font-size: 14px;
+  border: 1px solid #c8ccd1;
+  border-radius: 3px;
+}
+
+input:focus {
+  outline: none;
+  border-color: #2166a5;
+}
+
+button {
+  width: 100%;
+  padding: 9px;
+  font-family: inherit;
+  font-size: 14px;
+  color: #ffffff;
+  background-color: #2166a5;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #1a5288;
+}
+
+button:disabled {
+  background-color: #8fa8bf;
+  cursor: default;
+}
+
+.hata {
+  margin-bottom: 16px;
+  padding: 8px 10px;
+  color: #c0392b;
+  background-color: #fdecea;
+  border: 1px solid #f0b8b2;
+  border-radius: 3px;
+}
+
+.liste-sayfa {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 30px 20px;
+}
+
+.ust-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.ust-bar h1 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.cikis-butonu {
+  width: auto;
+  padding: 7px 14px;
+  color: #444444;
+  background-color: #ffffff;
+  border: 1px solid #c8ccd1;
+}
+
+.cikis-butonu:hover {
+  background-color: #eceef0;
+}
+
+table {
+  width: 100%;
+  background-color: #ffffff;
+  border: 1px solid #d5d8dc;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid #e4e6e9;
+}
+
+th {
+  background-color: #eceef0;
+  font-weight: 600;
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.sag {
+  text-align: right;
+}
+
+.bilgi {
+  padding: 16px 0;
+  color: #6b7075;
+}
