@@ -6,6 +6,7 @@ using StajApi.CQRS;
 using StajApi.Data;
 using StajApi.Features.Auth;
 using StajApi.Features.Calisanlar;
+using StajApi.Features.Yoneticiler;
 using StajApi.Models;
 using StajApi.Repositories;
 using StajApi.Services;
@@ -21,6 +22,27 @@ builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 builder.Services.AddScoped<
     IQueryHandler<GetCalisanlarQuery, List<Calisan>>,
     GetCalisanlarQueryHandler>();
+builder.Services.AddScoped<
+    ICommandHandler<CreateCalisanCommand, int>,
+    CreateCalisanCommandHandler>();
+builder.Services.AddScoped<
+    ICommandHandler<UpdateCalisanCommand, bool>,
+    UpdateCalisanCommandHandler>();
+builder.Services.AddScoped<
+    ICommandHandler<DeleteCalisanCommand, bool>,
+    DeleteCalisanCommandHandler>();
+builder.Services.AddScoped<
+    IQueryHandler<GetYoneticilerQuery, List<Yonetici>>,
+    GetYoneticilerQueryHandler>();
+builder.Services.AddScoped<
+    ICommandHandler<CreateYoneticiCommand, int>,
+    CreateYoneticiCommandHandler>();
+builder.Services.AddScoped<
+    ICommandHandler<UpdateYoneticiCommand, bool>,
+    UpdateYoneticiCommandHandler>();
+builder.Services.AddScoped<
+    ICommandHandler<DeleteYoneticiCommand, bool>,
+    DeleteYoneticiCommandHandler>();
 builder.Services.AddScoped<
     ICommandHandler<LoginCommand, AuthResult>,
     LoginCommandHandler>();
