@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
 import {
-  calisanlariGetir,
-  calisanEkle,
-  calisanGuncelle,
-  calisanSil
+  yoneticileriGetir,
+  yoneticiEkle,
+  yoneticiGuncelle,
+  yoneticiSil
 } from "./api.js";
 
-const bosForm = { ad: "", soyad: "", maas: "" };
+const bosForm = { ad: "", soyad: "", departman: "" };
 
-function CalisanListesi({ tokenlar, onTokenYenilendi }) {
-  const [calisanlar, setCalisanlar] = useState([]);
+function YoneticiListesi({ tokenlar, onTokenYenilendi }) {
+  const [yoneticiler, setYoneticiler] = useState([]);
   const [hata, setHata] = useState("");
   const [yukleniyor, setYukleniyor] = useState(true);
   const [form, setForm] = useState(bosForm);
@@ -18,8 +18,8 @@ function CalisanListesi({ tokenlar, onTokenYenilendi }) {
 
   async function listeyiYukle() {
     try {
-      const liste = await calisanlariGetir(tokenlar, onTokenYenilendi);
-      setCalisanlar(liste);
+      const liste = await yoneticileriGetir(tokenlar, onTokenYenilendi);
+      setYoneticiler(liste);
       setHata("");
     } catch (sorun) {
       setHata(sorun.message);
@@ -36,12 +36,12 @@ function CalisanListesi({ tokenlar, onTokenYenilendi }) {
     setForm({ ...form, [olay.target.name]: olay.target.value });
   }
 
-  function duzenlemeyeBasla(calisan) {
-    setDuzenlenenId(calisan.calisanId);
+  function duzenlemeyeBasla(yonetici) {
+    setDuzenlenenId(yonetici.yoneticiId);
     setForm({
-      ad: calisan.ad,
-      soyad: calisan.soyad,
-      maas: String(calisan.maas)
+      ad: yonetici.ad,
+      soyad: yonetici.soyad,
+      departman: yonetici.departman
     });
   }
 
@@ -54,28 +54,29 @@ function CalisanListesi({ tokenlar, onTokenYenilendi }) {
     olay.preventDefault();
     setHata("");
 
-    if (form.ad.trim() === "" || form.soyad.trim() === "") {
-      setHata("Ad ve soyad boş bırakılamaz.");
-      return;
-    }
-
-    const maas = Number(form.maas);
-
-    if (Number.isNaN(maas) || maas < 0) {
-      setHata("Geçerli bir maaş giriniz.");
+    if (
+      form.ad.trim() === "" ||
+      form.soyad.trim() === "" ||
+      form.departman.trim() === ""
+    ) {
+      setHata("Ad, soyad ve departman boş bırakılamaz.");
       return;
     }
 
     setKaydediliyor(true);
 
     try {
-      const calisan = { ad: form.ad.trim(), soyad: form.soyad.trim(), maas };
+      const yonetici = {
+        ad: form.ad.trim(),
+        soyad: form.soyad.trim(),
+        departman: form.departman.trim()
+      };
 
       if (duzenlenenId === null) {
-        await calisanEkle(calisan, tokenlar, onTokenYenilendi);
+        await yoneticiEkle(yonetici, tokenlar, onTokenYenilendi);
       } else {
-        await calisanGuncelle(
-          { ...calisan, calisanId: duzenlenenId },
+        await yoneticiGuncelle(
+          { ...yonetici, yoneticiId: duzenlenenId },
           tokenlar,
           onTokenYenilendi
         );
@@ -90,9 +91,9 @@ function CalisanListesi({ tokenlar, onTokenYenilendi }) {
     }
   }
 
-  async function kayitSil(calisan) {
+  async function kayitSil(yonetici) {
     const onay = window.confirm(
-      `${calisan.ad} ${calisan.soyad} silinsin mi?`
+      `${yonetici.ad} ${yonetici.soyad} silinsin mi?`
     );
 
     if (!onay) {
@@ -102,9 +103,9 @@ function CalisanListesi({ tokenlar, onTokenYenilendi }) {
     setHata("");
 
     try {
-      await calisanSil(calisan.calisanId, tokenlar, onTokenYenilendi);
+      await yoneticiSil(yonetici.yoneticiId, tokenlar, onTokenYenilendi);
 
-      if (duzenlenenId === calisan.calisanId) {
+      if (duzenlenenId === yonetici.yoneticiId) {
         formuTemizle();
       }
 
@@ -114,25 +115,28 @@ function CalisanListesi({ tokenlar, onTokenYenilendi }) {
     }
   }
 
-  function maasYaz(maas) {
-    return maas.toLocaleString("tr-TR", { minimumFractionDigits: 2 }) + " TL";
-  }
-
   return (
     <div>
       <form className="kayit-formu" onSubmit={formGonder}>
-        <h2>{duzenlenenId === null ? "Yeni Çalışan Ekle" : "Çalışan Düzenle"}</h2>
+        <h2>
+          {duzenlenenId === null ? "Yeni Yönetici Ekle" : "Yönetici Düzenle"}
+        </h2>
 
         <div className="form-satiri">
           <div className="form-alani">
-            <label htmlFor="ad">Ad</label>
-            <input id="ad" name="ad" value={form.ad} onChange={alanDegisti} />
+            <label htmlFor="yonetici-ad">Ad</label>
+            <input
+              id="yonetici-ad"
+              name="ad"
+              value={form.ad}
+              onChange={alanDegisti}
+            />
           </div>
 
           <div className="form-alani">
-            <label htmlFor="soyad">Soyad</label>
+            <label htmlFor="yonetici-soyad">Soyad</label>
             <input
-              id="soyad"
+              id="yonetici-soyad"
               name="soyad"
               value={form.soyad}
               onChange={alanDegisti}
@@ -140,14 +144,11 @@ function CalisanListesi({ tokenlar, onTokenYenilendi }) {
           </div>
 
           <div className="form-alani">
-            <label htmlFor="maas">Maaş</label>
+            <label htmlFor="yonetici-departman">Departman</label>
             <input
-              id="maas"
-              name="maas"
-              type="number"
-              min="0"
-              step="0.01"
-              value={form.maas}
+              id="yonetici-departman"
+              name="departman"
+              value={form.departman}
               onChange={alanDegisti}
             />
           </div>
@@ -174,40 +175,40 @@ function CalisanListesi({ tokenlar, onTokenYenilendi }) {
 
       {yukleniyor && <p className="bilgi">Liste yükleniyor...</p>}
 
-      {!yukleniyor && hata === "" && calisanlar.length === 0 && (
-        <p className="bilgi">Kayıtlı çalışan bulunamadı.</p>
+      {!yukleniyor && hata === "" && yoneticiler.length === 0 && (
+        <p className="bilgi">Kayıtlı yönetici bulunamadı.</p>
       )}
 
-      {!yukleniyor && calisanlar.length > 0 && (
+      {!yukleniyor && yoneticiler.length > 0 && (
         <table>
           <thead>
             <tr>
               <th>No</th>
               <th>Ad</th>
               <th>Soyad</th>
-              <th className="sag">Maaş</th>
+              <th>Departman</th>
               <th className="sag">İşlemler</th>
             </tr>
           </thead>
           <tbody>
-            {calisanlar.map((calisan) => (
-              <tr key={calisan.calisanId}>
-                <td>{calisan.calisanId}</td>
-                <td>{calisan.ad}</td>
-                <td>{calisan.soyad}</td>
-                <td className="sag">{maasYaz(calisan.maas)}</td>
+            {yoneticiler.map((yonetici) => (
+              <tr key={yonetici.yoneticiId}>
+                <td>{yonetici.yoneticiId}</td>
+                <td>{yonetici.ad}</td>
+                <td>{yonetici.soyad}</td>
+                <td>{yonetici.departman}</td>
                 <td className="sag">
                   <button
                     type="button"
                     className="tablo-butonu"
-                    onClick={() => duzenlemeyeBasla(calisan)}
+                    onClick={() => duzenlemeyeBasla(yonetici)}
                   >
                     Düzenle
                   </button>
                   <button
                     type="button"
                     className="tablo-butonu sil"
-                    onClick={() => kayitSil(calisan)}
+                    onClick={() => kayitSil(yonetici)}
                   >
                     Sil
                   </button>
@@ -221,4 +222,4 @@ function CalisanListesi({ tokenlar, onTokenYenilendi }) {
   );
 }
 
-export default CalisanListesi;
+export default YoneticiListesi;

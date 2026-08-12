@@ -38,14 +38,40 @@ export async function tokenYenile(refreshToken) {
   };
 }
 
-async function calisanlariIste(accessToken) {
-  const cevap = await fetch(`${API_URL}/api/calisanlar`, {
-    headers: { Authorization: `Bearer ${accessToken}` }
-  });
+async function yetkiliIstek(yol, secenekler, tokenlar, tokenlariGuncelle) {
+  const istekOlustur = (accessToken) =>
+    fetch(`${API_URL}${yol}`, {
+      ...secenekler,
+      headers: {
+        "Content-Type": "application/json",
+        ...secenekler.headers,
+        Authorization: `Bearer ${accessToken}`
+      }
+    });
+
+  let cevap = await istekOlustur(tokenlar.accessToken);
 
   if (cevap.status === 401) {
-    return null;
+    const yeniTokenlar = await tokenYenile(tokenlar.refreshToken);
+    tokenlariGuncelle(yeniTokenlar);
+
+    cevap = await istekOlustur(yeniTokenlar.accessToken);
+
+    if (cevap.status === 401) {
+      throw new Error("Oturum süresi doldu, tekrar giriş yapın.");
+    }
   }
+
+  return cevap;
+}
+
+export async function calisanlariGetir(tokenlar, tokenlariGuncelle) {
+  const cevap = await yetkiliIstek(
+    "/api/calisanlar",
+    {},
+    tokenlar,
+    tokenlariGuncelle
+  );
 
   if (!cevap.ok) {
     throw new Error("Çalışan listesi alınamadı.");
@@ -54,19 +80,95 @@ async function calisanlariIste(accessToken) {
   return cevap.json();
 }
 
-export async function calisanlariGetir(tokenlar, tokenlariGuncelle) {
-  let liste = await calisanlariIste(tokenlar.accessToken);
+export async function calisanEkle(calisan, tokenlar, tokenlariGuncelle) {
+  const cevap = await yetkiliIstek(
+    "/api/calisanlar",
+    { method: "POST", body: JSON.stringify(calisan) },
+    tokenlar,
+    tokenlariGuncelle
+  );
 
-  if (liste === null) {
-    const yeniTokenlar = await tokenYenile(tokenlar.refreshToken);
-    tokenlariGuncelle(yeniTokenlar);
+  if (!cevap.ok) {
+    throw new Error("Çalışan eklenemedi.");
+  }
+}
 
-    liste = await calisanlariIste(yeniTokenlar.accessToken);
+export async function calisanGuncelle(calisan, tokenlar, tokenlariGuncelle) {
+  const cevap = await yetkiliIstek(
+    `/api/calisanlar/${calisan.calisanId}`,
+    { method: "PUT", body: JSON.stringify(calisan) },
+    tokenlar,
+    tokenlariGuncelle
+  );
 
-    if (liste === null) {
-      throw new Error("Oturum süresi doldu, tekrar giriş yapın.");
-    }
+  if (!cevap.ok) {
+    throw new Error("Çalışan güncellenemedi.");
+  }
+}
+
+export async function calisanSil(calisanId, tokenlar, tokenlariGuncelle) {
+  const cevap = await yetkiliIstek(
+    `/api/calisanlar/${calisanId}`,
+    { method: "DELETE" },
+    tokenlar,
+    tokenlariGuncelle
+  );
+
+  if (!cevap.ok) {
+    throw new Error("Çalışan silinemedi.");
+  }
+}
+
+export async function yoneticileriGetir(tokenlar, tokenlariGuncelle) {
+  const cevap = await yetkiliIstek(
+    "/api/yoneticiler",
+    {},
+    tokenlar,
+    tokenlariGuncelle
+  );
+
+  if (!cevap.ok) {
+    throw new Error("Yönetici listesi alınamadı.");
   }
 
-  return liste;
+  return cevap.json();
+}
+
+export async function yoneticiEkle(yonetici, tokenlar, tokenlariGuncelle) {
+  const cevap = await yetkiliIstek(
+    "/api/yoneticiler",
+    { method: "POST", body: JSON.stringify(yonetici) },
+    tokenlar,
+    tokenlariGuncelle
+  );
+
+  if (!cevap.ok) {
+    throw new Error("Yönetici eklenemedi.");
+  }
+}
+
+export async function yoneticiGuncelle(yonetici, tokenlar, tokenlariGuncelle) {
+  const cevap = await yetkiliIstek(
+    `/api/yoneticiler/${yonetici.yoneticiId}`,
+    { method: "PUT", body: JSON.stringify(yonetici) },
+    tokenlar,
+    tokenlariGuncelle
+  );
+
+  if (!cevap.ok) {
+    throw new Error("Yönetici güncellenemedi.");
+  }
+}
+
+export async function yoneticiSil(yoneticiId, tokenlar, tokenlariGuncelle) {
+  const cevap = await yetkiliIstek(
+    `/api/yoneticiler/${yoneticiId}`,
+    { method: "DELETE" },
+    tokenlar,
+    tokenlariGuncelle
+  );
+
+  if (!cevap.ok) {
+    throw new Error("Yönetici silinemedi.");
+  }
 }

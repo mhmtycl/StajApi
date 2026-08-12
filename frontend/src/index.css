@@ -90,9 +90,104 @@ button:disabled {
 }
 
 .liste-sayfa {
-  max-width: 800px;
+  max-width: 900px;
   margin: 0 auto;
   padding: 30px 20px;
+}
+
+.sekmeler {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.sekme {
+  width: auto;
+  padding: 8px 18px;
+  color: #444444;
+  background-color: #ffffff;
+  border: 1px solid #c8ccd1;
+}
+
+.sekme:hover {
+  background-color: #eceef0;
+}
+
+.sekme.aktif {
+  color: #ffffff;
+  background-color: #2166a5;
+  border-color: #2166a5;
+}
+
+.kayit-formu {
+  margin-bottom: 20px;
+  padding: 18px;
+  background-color: #ffffff;
+  border: 1px solid #d5d8dc;
+  border-radius: 4px;
+}
+
+.kayit-formu h2 {
+  margin: 0 0 14px 0;
+  font-size: 16px;
+}
+
+.form-satiri {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.form-alani {
+  flex: 1;
+  min-width: 160px;
+}
+
+.form-alani input {
+  margin-bottom: 12px;
+}
+
+.form-butonlari {
+  display: flex;
+  gap: 8px;
+}
+
+.form-butonlari button {
+  width: auto;
+  padding: 8px 20px;
+}
+
+.ikincil {
+  color: #444444;
+  background-color: #ffffff;
+  border: 1px solid #c8ccd1;
+}
+
+.ikincil:hover {
+  background-color: #eceef0;
+}
+
+.tablo-butonu {
+  width: auto;
+  padding: 5px 10px;
+  margin-left: 6px;
+  font-size: 13px;
+  color: #444444;
+  background-color: #ffffff;
+  border: 1px solid #c8ccd1;
+}
+
+.tablo-butonu:hover {
+  background-color: #eceef0;
+}
+
+.tablo-butonu.sil {
+  color: #c0392b;
+  border-color: #e3b1ab;
+}
+
+.tablo-butonu.sil:hover {
+  background-color: #fdecea;
 }
 
 .ust-bar {
