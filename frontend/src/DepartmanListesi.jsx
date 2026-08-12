@@ -1,15 +1,13 @@
 import { useEffect, useState } from "react";
 import {
-  calisanEkle,
-  calisanGuncelle,
-  calisanSil,
-  calisanlariGetir,
+  departmanEkle,
+  departmanGuncelle,
+  departmanSil,
   departmanlariGetir
 } from "./api.js";
-import CalisanFormu from "./CalisanFormu.jsx";
+import DepartmanFormu from "./DepartmanFormu.jsx";
 
-function CalisanListesi({ tokenlar, onTokenYenilendi }) {
-  const [calisanlar, setCalisanlar] = useState([]);
+function DepartmanListesi({ tokenlar, onTokenYenilendi }) {
   const [departmanlar, setDepartmanlar] = useState([]);
   const [hata, setHata] = useState("");
   const [bilgi, setBilgi] = useState("");
@@ -23,12 +21,10 @@ function CalisanListesi({ tokenlar, onTokenYenilendi }) {
 
     async function baslangicVerisiniYukle() {
       try {
-        const gelenCalisanlar = await calisanlariGetir(tokenlar, onTokenYenilendi);
-        const gelenDepartmanlar = await departmanlariGetir(tokenlar, onTokenYenilendi);
+        const gelen = await departmanlariGetir(tokenlar, onTokenYenilendi);
 
         if (gecerli) {
-          setCalisanlar(gelenCalisanlar);
-          setDepartmanlar(gelenDepartmanlar);
+          setDepartmanlar(gelen);
         }
       } catch (sorun) {
         if (gecerli) {
@@ -49,8 +45,8 @@ function CalisanListesi({ tokenlar, onTokenYenilendi }) {
   }, []);
 
   async function listeyiYenile() {
-    const gelenCalisanlar = await calisanlariGetir(tokenlar, onTokenYenilendi);
-    setCalisanlar(gelenCalisanlar);
+    const gelen = await departmanlariGetir(tokenlar, onTokenYenilendi);
+    setDepartmanlar(gelen);
   }
 
   function yeniEkle() {
@@ -60,8 +56,8 @@ function CalisanListesi({ tokenlar, onTokenYenilendi }) {
     setBilgi("");
   }
 
-  function duzenle(calisan) {
-    setDuzenlenen(calisan);
+  function duzenle(departman) {
+    setDuzenlenen(departman);
     setFormAcik(true);
     setHata("");
     setBilgi("");
@@ -79,8 +75,8 @@ function CalisanListesi({ tokenlar, onTokenYenilendi }) {
 
     try {
       const sonuc = duzenlenen
-        ? await calisanGuncelle(duzenlenen.calisanId, veri, tokenlar, onTokenYenilendi)
-        : await calisanEkle(veri, tokenlar, onTokenYenilendi);
+        ? await departmanGuncelle(duzenlenen.departmanId, veri, tokenlar, onTokenYenilendi)
+        : await departmanEkle(veri, tokenlar, onTokenYenilendi);
 
       await listeyiYenile();
 
@@ -94,9 +90,9 @@ function CalisanListesi({ tokenlar, onTokenYenilendi }) {
     }
   }
 
-  async function sil(calisan) {
+  async function sil(departman) {
     const onay = window.confirm(
-      `${calisan.ad} ${calisan.soyad} kaydı silinecek. Emin misiniz?`
+      `${departman.departmanAdi} departmanı silinecek. Emin misiniz?`
     );
 
     if (!onay) {
@@ -107,30 +103,22 @@ function CalisanListesi({ tokenlar, onTokenYenilendi }) {
     setBilgi("");
 
     try {
-      const sonuc = await calisanSil(calisan.calisanId, tokenlar, onTokenYenilendi);
+      const sonuc = await departmanSil(departman.departmanId, tokenlar, onTokenYenilendi);
 
       await listeyiYenile();
 
-      setBilgi(sonuc?.message ?? "Çalışan silindi.");
+      setBilgi(sonuc?.message ?? "Departman silindi.");
     } catch (sorun) {
       setHata(sorun.message);
     }
   }
 
-  function maasYaz(maas) {
-    if (maas === null || maas === undefined) {
-      return "-";
-    }
-
-    return maas.toLocaleString("tr-TR", { minimumFractionDigits: 2 }) + " TL";
-  }
-
   return (
     <div>
       <div className="bolum-basligi">
-        <h2>Çalışanlar</h2>
+        <h2>Departmanlar</h2>
         <button type="button" className="islem-butonu" onClick={yeniEkle}>
-          Yeni Çalışan
+          Yeni Departman
         </button>
       </div>
 
@@ -138,10 +126,9 @@ function CalisanListesi({ tokenlar, onTokenYenilendi }) {
       {bilgi !== "" && <div className="basarili">{bilgi}</div>}
 
       {formAcik && (
-        <CalisanFormu
-          key={duzenlenen?.calisanId ?? "yeni"}
-          calisan={duzenlenen}
-          departmanlar={departmanlar}
+        <DepartmanFormu
+          key={duzenlenen?.departmanId ?? "yeni"}
+          departman={duzenlenen}
           onKaydet={kaydet}
           onVazgec={formuKapat}
           kaydediliyor={kaydediliyor}
@@ -150,45 +137,37 @@ function CalisanListesi({ tokenlar, onTokenYenilendi }) {
 
       {yukleniyor && <p className="bilgi">Liste yükleniyor...</p>}
 
-      {!yukleniyor && hata === "" && calisanlar.length === 0 && (
-        <p className="bilgi">Kayıtlı çalışan bulunamadı.</p>
+      {!yukleniyor && hata === "" && departmanlar.length === 0 && (
+        <p className="bilgi">Kayıtlı departman bulunamadı.</p>
       )}
 
-      {!yukleniyor && calisanlar.length > 0 && (
+      {!yukleniyor && departmanlar.length > 0 && (
         <div className="tablo-kutusu">
-          <table>
+          <table className="dar-tablo">
             <thead>
               <tr>
                 <th>No</th>
-                <th>Ad</th>
-                <th>Soyad</th>
-                <th>E-posta</th>
-                <th>Departman</th>
-                <th className="sag">Maaş</th>
+                <th>Departman Adı</th>
                 <th className="sag">İşlemler</th>
               </tr>
             </thead>
             <tbody>
-              {calisanlar.map((calisan) => (
-                <tr key={calisan.calisanId}>
-                  <td>{calisan.calisanId}</td>
-                  <td>{calisan.ad}</td>
-                  <td>{calisan.soyad}</td>
-                  <td>{calisan.email ?? "-"}</td>
-                  <td>{calisan.departmanAdi ?? "-"}</td>
-                  <td className="sag">{maasYaz(calisan.maas)}</td>
+              {departmanlar.map((departman) => (
+                <tr key={departman.departmanId}>
+                  <td>{departman.departmanId}</td>
+                  <td>{departman.departmanAdi}</td>
                   <td className="sag islem-hucresi">
                     <button
                       type="button"
                       className="satir-butonu"
-                      onClick={() => duzenle(calisan)}
+                      onClick={() => duzenle(departman)}
                     >
                       Düzenle
                     </button>
                     <button
                       type="button"
                       className="satir-butonu sil-butonu"
-                      onClick={() => sil(calisan)}
+                      onClick={() => sil(departman)}
                     >
                       Sil
                     </button>
@@ -203,4 +182,4 @@ function CalisanListesi({ tokenlar, onTokenYenilendi }) {
   );
 }
 
-export default CalisanListesi;
+export default DepartmanListesi;

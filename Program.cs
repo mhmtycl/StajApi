@@ -6,6 +6,7 @@ using StajApi.CQRS;
 using StajApi.Data;
 using StajApi.Features.Auth;
 using StajApi.Features.Calisanlar;
+using StajApi.Features.Departmanlar;
 using StajApi.Models;
 using StajApi.Repositories;
 using StajApi.Services;
@@ -27,6 +28,29 @@ builder.Services.AddScoped<
 builder.Services.AddScoped<
     ICommandHandler<RefreshTokenCommand, AuthResult>,
     RefreshTokenCommandHandler>();
+
+builder.Services.AddScoped<
+    ICommandHandler<CreateCalisanCommand, CalisanIslemSonucu>,
+    CreateCalisanCommandHandler>();
+builder.Services.AddScoped<
+    ICommandHandler<UpdateCalisanCommand, CalisanIslemSonucu>,
+    UpdateCalisanCommandHandler>();
+builder.Services.AddScoped<
+    ICommandHandler<DeleteCalisanCommand, CalisanIslemSonucu>,
+    DeleteCalisanCommandHandler>();
+
+builder.Services.AddScoped<
+    IQueryHandler<GetDepartmanlarQuery, List<Departman>>,
+    GetDepartmanlarQueryHandler>();
+builder.Services.AddScoped<
+    ICommandHandler<CreateDepartmanCommand, DepartmanIslemSonucu>,
+    CreateDepartmanCommandHandler>();
+builder.Services.AddScoped<
+    ICommandHandler<UpdateDepartmanCommand, DepartmanIslemSonucu>,
+    UpdateDepartmanCommandHandler>();
+builder.Services.AddScoped<
+    ICommandHandler<DeleteDepartmanCommand, DepartmanIslemSonucu>,
+    DeleteDepartmanCommandHandler>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {

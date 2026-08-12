@@ -44,17 +44,20 @@ label {
   font-weight: 600;
 }
 
-input {
+input,
+select {
   width: 100%;
   padding: 8px 10px;
   margin-bottom: 16px;
   font-family: inherit;
   font-size: 14px;
+  background-color: #ffffff;
   border: 1px solid #c8ccd1;
   border-radius: 3px;
 }
 
-input:focus {
+input:focus,
+select:focus {
   outline: none;
   border-color: #2166a5;
 }
@@ -89,8 +92,17 @@ button:disabled {
   border-radius: 3px;
 }
 
+.basarili {
+  margin-bottom: 16px;
+  padding: 8px 10px;
+  color: #1e7043;
+  background-color: #eaf6ef;
+  border: 1px solid #b5ddc5;
+  border-radius: 3px;
+}
+
 .liste-sayfa {
-  max-width: 800px;
+  max-width: 1000px;
   margin: 0 auto;
   padding: 30px 20px;
 }
@@ -107,22 +119,117 @@ button:disabled {
   font-size: 20px;
 }
 
-.cikis-butonu {
+.buton-grubu {
+  display: flex;
+  gap: 8px;
+}
+
+.buton-grubu button {
   width: auto;
-  padding: 7px 14px;
+  padding: 8px 16px;
+}
+
+.tekil-buton,
+.islem-butonu {
+  width: auto;
+  padding: 8px 16px;
+}
+
+.sekmeler {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #d5d8dc;
+}
+
+.sekme {
+  width: auto;
+  padding: 9px 16px;
+  color: #444444;
+  background-color: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+}
+
+.sekme:hover {
+  color: #222222;
+  background-color: #eceef0;
+}
+
+.sekme-aktif {
+  color: #2166a5;
+  font-weight: 600;
+  border-bottom-color: #2166a5;
+}
+
+.sekme-aktif:hover {
+  color: #2166a5;
+}
+
+.bolum-basligi {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.bolum-basligi h2 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.dar-tablo {
+  min-width: 380px;
+}
+
+.ikincil-buton {
   color: #444444;
   background-color: #ffffff;
   border: 1px solid #c8ccd1;
 }
 
-.cikis-butonu:hover {
+.ikincil-buton:hover {
   background-color: #eceef0;
+}
+
+.ikincil-buton:disabled {
+  color: #9aa0a6;
+  background-color: #ffffff;
+}
+
+.form-karti {
+  margin-bottom: 20px;
+  padding: 20px;
+  background-color: #ffffff;
+  border: 1px solid #d5d8dc;
+  border-radius: 4px;
+}
+
+.form-karti h2 {
+  margin: 0 0 16px 0;
+  font-size: 16px;
+}
+
+.form-satir {
+  display: flex;
+  gap: 16px;
+}
+
+.form-alan {
+  flex: 1;
+}
+
+.tablo-kutusu {
+  overflow-x: auto;
+  border: 1px solid #d5d8dc;
+  border-radius: 4px;
 }
 
 table {
   width: 100%;
+  min-width: 720px;
   background-color: #ffffff;
-  border: 1px solid #d5d8dc;
   border-collapse: collapse;
 }
 
@@ -144,9 +251,38 @@ tbody tr:last-child td {
 
 .sag {
   text-align: right;
+  white-space: nowrap;
+}
+
+.islem-hucresi {
+  width: 1%;
+}
+
+.satir-butonu {
+  width: auto;
+  margin-left: 6px;
+  padding: 5px 10px;
+  font-size: 13px;
+  color: #2166a5;
+  background-color: #ffffff;
+  border: 1px solid #c8ccd1;
+}
+
+.satir-butonu:hover {
+  background-color: #eceef0;
+}
+
+.sil-butonu {
+  color: #c0392b;
 }
 
 .bilgi {
   padding: 16px 0;
   color: #6b7075;
+}
+
+@media (max-width: 600px) {
+  .form-satir {
+    display: block;
+  }
 }

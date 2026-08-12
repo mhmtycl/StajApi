@@ -38,35 +38,139 @@ export async function tokenYenile(refreshToken) {
   };
 }
 
-async function calisanlariIste(accessToken) {
-  const cevap = await fetch(`${API_URL}/api/calisanlar`, {
-    headers: { Authorization: `Bearer ${accessToken}` }
+async function tokenliIstek(yol, secenekler, accessToken) {
+  const cevap = await fetch(`${API_URL}${yol}`, {
+    ...secenekler,
+    headers: {
+      ...(secenekler.headers ?? {}),
+      Authorization: `Bearer ${accessToken}`
+    }
   });
 
   if (cevap.status === 401) {
     return null;
   }
 
-  if (!cevap.ok) {
-    throw new Error("Çalışan listesi alınamadı.");
-  }
-
-  return cevap.json();
+  return cevap;
 }
 
-export async function calisanlariGetir(tokenlar, tokenlariGuncelle) {
-  let liste = await calisanlariIste(tokenlar.accessToken);
+async function istekAt(yol, secenekler, tokenlar, tokenlariGuncelle) {
+  let cevap = await tokenliIstek(yol, secenekler, tokenlar.accessToken);
 
-  if (liste === null) {
+  if (cevap === null) {
     const yeniTokenlar = await tokenYenile(tokenlar.refreshToken);
     tokenlariGuncelle(yeniTokenlar);
 
-    liste = await calisanlariIste(yeniTokenlar.accessToken);
+    cevap = await tokenliIstek(yol, secenekler, yeniTokenlar.accessToken);
 
-    if (liste === null) {
+    if (cevap === null) {
       throw new Error("Oturum süresi doldu, tekrar giriş yapın.");
     }
   }
 
-  return liste;
+  return cevap;
+}
+
+async function sonucuCoz(cevap, varsayilanHata) {
+  const veri = await cevap.json().catch(() => null);
+
+  if (!cevap.ok) {
+    throw new Error(veri?.message ?? varsayilanHata);
+  }
+
+  return veri;
+}
+
+export async function calisanlariGetir(tokenlar, tokenlariGuncelle) {
+  const cevap = await istekAt("/api/calisanlar", {}, tokenlar, tokenlariGuncelle);
+
+  return sonucuCoz(cevap, "Çalışan listesi alınamadı.");
+}
+
+export async function departmanlariGetir(tokenlar, tokenlariGuncelle) {
+  const cevap = await istekAt("/api/departmanlar", {}, tokenlar, tokenlariGuncelle);
+
+  return sonucuCoz(cevap, "Departman listesi alınamadı.");
+}
+
+export async function calisanEkle(calisan, tokenlar, tokenlariGuncelle) {
+  const cevap = await istekAt(
+    "/api/calisanlar",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(calisan)
+    },
+    tokenlar,
+    tokenlariGuncelle
+  );
+
+  return sonucuCoz(cevap, "Çalışan eklenemedi.");
+}
+
+export async function calisanGuncelle(id, calisan, tokenlar, tokenlariGuncelle) {
+  const cevap = await istekAt(
+    `/api/calisanlar/${id}`,
+    {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(calisan)
+    },
+    tokenlar,
+    tokenlariGuncelle
+  );
+
+  return sonucuCoz(cevap, "Çalışan güncellenemedi.");
+}
+
+export async function departmanEkle(departman, tokenlar, tokenlariGuncelle) {
+  const cevap = await istekAt(
+    "/api/departmanlar",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(departman)
+    },
+    tokenlar,
+    tokenlariGuncelle
+  );
+
+  return sonucuCoz(cevap, "Departman eklenemedi.");
+}
+
+export async function departmanGuncelle(id, departman, tokenlar, tokenlariGuncelle) {
+  const cevap = await istekAt(
+    `/api/departmanlar/${id}`,
+    {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(departman)
+    },
+    tokenlar,
+    tokenlariGuncelle
+  );
+
+  return sonucuCoz(cevap, "Departman güncellenemedi.");
+}
+
+export async function departmanSil(id, tokenlar, tokenlariGuncelle) {
+  const cevap = await istekAt(
+    `/api/departmanlar/${id}`,
+    { method: "DELETE" },
+    tokenlar,
+    tokenlariGuncelle
+  );
+
+  return sonucuCoz(cevap, "Departman silinemedi.");
+}
+
+export async function calisanSil(id, tokenlar, tokenlariGuncelle) {
+  const cevap = await istekAt(
+    `/api/calisanlar/${id}`,
+    { method: "DELETE" },
+    tokenlar,
+    tokenlariGuncelle
+  );
+
+  return sonucuCoz(cevap, "Çalışan silinemedi.");
 }

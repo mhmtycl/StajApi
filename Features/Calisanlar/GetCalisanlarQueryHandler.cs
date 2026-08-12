@@ -24,12 +24,17 @@ public class GetCalisanlarQueryHandler
         var command = connection.CreateCommand();
         command.CommandText = @"
             SELECT
-                CALISAN_ID,
-                AD,
-                SOYAD,
-                MAAS
-            FROM CALISANLAR
-            ORDER BY CALISAN_ID";
+                c.CALISAN_ID,
+                c.AD,
+                c.SOYAD,
+                c.EMAIL,
+                c.MAAS,
+                c.DEPARTMAN_ID,
+                d.DEPARTMAN_ADI
+            FROM CALISANLAR c
+            LEFT JOIN DEPARTMANLAR d
+                ON d.DEPARTMAN_ID = c.DEPARTMAN_ID
+            ORDER BY c.CALISAN_ID";
 
         await using var reader = await command.ExecuteReaderAsync();
 
@@ -40,7 +45,14 @@ public class GetCalisanlarQueryHandler
                 CalisanId = Convert.ToInt32(reader["CALISAN_ID"]),
                 Ad = reader["AD"].ToString()!,
                 Soyad = reader["SOYAD"].ToString()!,
-                Maas = Convert.ToDecimal(reader["MAAS"])
+                Email = reader["EMAIL"] as string,
+                Maas = reader["MAAS"] is DBNull
+                    ? null
+                    : Convert.ToDecimal(reader["MAAS"]),
+                DepartmanId = reader["DEPARTMAN_ID"] is DBNull
+                    ? null
+                    : Convert.ToInt32(reader["DEPARTMAN_ID"]),
+                DepartmanAdi = reader["DEPARTMAN_ADI"] as string
             });
         }
 

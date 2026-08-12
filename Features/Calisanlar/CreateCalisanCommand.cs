@@ -1,12 +1,10 @@
-namespace StajApi.Models;
+namespace StajApi.Features.Calisanlar;
 
-public class Calisan
+public class CreateCalisanCommand
 {
-    public int CalisanId { get; set; }
     public string Ad { get; set; } = "";
     public string Soyad { get; set; } = "";
     public string? Email { get; set; }
     public decimal? Maas { get; set; }
     public int? DepartmanId { get; set; }
-    public string? DepartmanAdi { get; set; }
 }
