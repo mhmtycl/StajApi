@@ -164,6 +164,53 @@ export async function departmanSil(id, tokenlar, tokenlariGuncelle) {
   return sonucuCoz(cevap, "Departman silinemedi.");
 }
 
+export async function projeleriGetir(tokenlar, tokenlariGuncelle) {
+  const cevap = await istekAt("/api/projeler", {}, tokenlar, tokenlariGuncelle);
+
+  return sonucuCoz(cevap, "Proje listesi alınamadı.");
+}
+
+export async function projeEkle(proje, tokenlar, tokenlariGuncelle) {
+  const cevap = await istekAt(
+    "/api/projeler",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(proje)
+    },
+    tokenlar,
+    tokenlariGuncelle
+  );
+
+  return sonucuCoz(cevap, "Proje eklenemedi.");
+}
+
+export async function projeGuncelle(id, proje, tokenlar, tokenlariGuncelle) {
+  const cevap = await istekAt(
+    `/api/projeler/${id}`,
+    {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(proje)
+    },
+    tokenlar,
+    tokenlariGuncelle
+  );
+
+  return sonucuCoz(cevap, "Proje güncellenemedi.");
+}
+
+export async function projeSil(id, tokenlar, tokenlariGuncelle) {
+  const cevap = await istekAt(
+    `/api/projeler/${id}`,
+    { method: "DELETE" },
+    tokenlar,
+    tokenlariGuncelle
+  );
+
+  return sonucuCoz(cevap, "Proje silinemedi.");
+}
+
 export async function calisanSil(id, tokenlar, tokenlariGuncelle) {
   const cevap = await istekAt(
     `/api/calisanlar/${id}`,

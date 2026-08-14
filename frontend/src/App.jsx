@@ -2,6 +2,7 @@ import { useState } from "react";
 import Login from "./Login.jsx";
 import CalisanListesi from "./CalisanListesi.jsx";
 import DepartmanListesi from "./DepartmanListesi.jsx";
+import ProjeListesi from "./ProjeListesi.jsx";
 
 function App() {
   const [tokenlar, setTokenlar] = useState(() => {
@@ -49,12 +50,23 @@ function App() {
         >
           Departmanlar
         </button>
+        <button
+          type="button"
+          className={sayfa === "projeler" ? "sekme sekme-aktif" : "sekme"}
+          onClick={() => setSayfa("projeler")}
+        >
+          Projeler
+        </button>
       </div>
 
-      {sayfa === "calisanlar" ? (
+      {sayfa === "calisanlar" && (
         <CalisanListesi tokenlar={tokenlar} onTokenYenilendi={tokenlariKaydet} />
-      ) : (
+      )}
+      {sayfa === "departmanlar" && (
         <DepartmanListesi tokenlar={tokenlar} onTokenYenilendi={tokenlariKaydet} />
+      )}
+      {sayfa === "projeler" && (
+        <ProjeListesi tokenlar={tokenlar} onTokenYenilendi={tokenlariKaydet} />
       )}
     </div>
   );

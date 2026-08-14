@@ -7,6 +7,7 @@ using StajApi.Data;
 using StajApi.Features.Auth;
 using StajApi.Features.Calisanlar;
 using StajApi.Features.Departmanlar;
+using StajApi.Features.Projeler;
 using StajApi.Models;
 using StajApi.Repositories;
 using StajApi.Services;
@@ -51,6 +52,19 @@ builder.Services.AddScoped<
 builder.Services.AddScoped<
     ICommandHandler<DeleteDepartmanCommand, DepartmanIslemSonucu>,
     DeleteDepartmanCommandHandler>();
+
+builder.Services.AddScoped<
+    IQueryHandler<GetProjelerQuery, List<Proje>>,
+    GetProjelerQueryHandler>();
+builder.Services.AddScoped<
+    ICommandHandler<CreateProjeCommand, ProjeIslemSonucu>,
+    CreateProjeCommandHandler>();
+builder.Services.AddScoped<
+    ICommandHandler<UpdateProjeCommand, ProjeIslemSonucu>,
+    UpdateProjeCommandHandler>();
+builder.Services.AddScoped<
+    ICommandHandler<DeleteProjeCommand, ProjeIslemSonucu>,
+    DeleteProjeCommandHandler>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
