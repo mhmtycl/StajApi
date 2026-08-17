@@ -7,6 +7,7 @@ using StajApi.Data;
 using StajApi.Features.Auth;
 using StajApi.Features.Calisanlar;
 using StajApi.Features.Departmanlar;
+using StajApi.Features.Gorevler;
 using StajApi.Features.Projeler;
 using StajApi.Models;
 using StajApi.Repositories;
@@ -65,6 +66,19 @@ builder.Services.AddScoped<
 builder.Services.AddScoped<
     ICommandHandler<DeleteProjeCommand, ProjeIslemSonucu>,
     DeleteProjeCommandHandler>();
+
+builder.Services.AddScoped<
+    IQueryHandler<GetGorevlerQuery, List<Gorev>>,
+    GetGorevlerQueryHandler>();
+builder.Services.AddScoped<
+    ICommandHandler<CreateGorevCommand, GorevIslemSonucu>,
+    CreateGorevCommandHandler>();
+builder.Services.AddScoped<
+    ICommandHandler<UpdateGorevCommand, GorevIslemSonucu>,
+    UpdateGorevCommandHandler>();
+builder.Services.AddScoped<
+    ICommandHandler<DeleteGorevCommand, GorevIslemSonucu>,
+    DeleteGorevCommandHandler>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {

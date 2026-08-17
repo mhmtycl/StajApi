@@ -3,6 +3,7 @@ import Login from "./Login.jsx";
 import CalisanListesi from "./CalisanListesi.jsx";
 import DepartmanListesi from "./DepartmanListesi.jsx";
 import ProjeListesi from "./ProjeListesi.jsx";
+import GorevListesi from "./GorevListesi.jsx";
 
 function App() {
   const [tokenlar, setTokenlar] = useState(() => {
@@ -57,6 +58,13 @@ function App() {
         >
           Projeler
         </button>
+        <button
+          type="button"
+          className={sayfa === "gorevler" ? "sekme sekme-aktif" : "sekme"}
+          onClick={() => setSayfa("gorevler")}
+        >
+          Görevler
+        </button>
       </div>
 
       {sayfa === "calisanlar" && (
@@ -67,6 +75,9 @@ function App() {
       )}
       {sayfa === "projeler" && (
         <ProjeListesi tokenlar={tokenlar} onTokenYenilendi={tokenlariKaydet} />
+      )}
+      {sayfa === "gorevler" && (
+        <GorevListesi tokenlar={tokenlar} onTokenYenilendi={tokenlariKaydet} />
       )}
     </div>
   );

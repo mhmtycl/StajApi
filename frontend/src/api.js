@@ -211,6 +211,53 @@ export async function projeSil(id, tokenlar, tokenlariGuncelle) {
   return sonucuCoz(cevap, "Proje silinemedi.");
 }
 
+export async function gorevleriGetir(tokenlar, tokenlariGuncelle) {
+  const cevap = await istekAt("/api/gorevler", {}, tokenlar, tokenlariGuncelle);
+
+  return sonucuCoz(cevap, "Görev listesi alınamadı.");
+}
+
+export async function gorevEkle(gorev, tokenlar, tokenlariGuncelle) {
+  const cevap = await istekAt(
+    "/api/gorevler",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(gorev)
+    },
+    tokenlar,
+    tokenlariGuncelle
+  );
+
+  return sonucuCoz(cevap, "Görev eklenemedi.");
+}
+
+export async function gorevGuncelle(id, gorev, tokenlar, tokenlariGuncelle) {
+  const cevap = await istekAt(
+    `/api/gorevler/${id}`,
+    {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(gorev)
+    },
+    tokenlar,
+    tokenlariGuncelle
+  );
+
+  return sonucuCoz(cevap, "Görev güncellenemedi.");
+}
+
+export async function gorevSil(id, tokenlar, tokenlariGuncelle) {
+  const cevap = await istekAt(
+    `/api/gorevler/${id}`,
+    { method: "DELETE" },
+    tokenlar,
+    tokenlariGuncelle
+  );
+
+  return sonucuCoz(cevap, "Görev silinemedi.");
+}
+
 export async function calisanSil(id, tokenlar, tokenlariGuncelle) {
   const cevap = await istekAt(
     `/api/calisanlar/${id}`,
